@@ -1,2 +1,2 @@
-# Spigot-GUI
+# Spigot GUI
 Simple GUI for spigot servers
