@@ -1,0 +1,5 @@
+main: net.dusterthefirst.simplespigot.Plugin
+name: SimpleSpigot
+version: 0.0
+author: DusterTheFirst
+description: An Example plugin
