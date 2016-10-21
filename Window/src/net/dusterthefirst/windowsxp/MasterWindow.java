@@ -29,19 +29,16 @@ import javax.swing.JTextPane;
 import javax.swing.JTree;
 import javax.swing.MenuSelectionManager;
 import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
-import javax.swing.ImageIcon;
-import javax.swing.border.EmptyBorder;
-import java.awt.SystemColor;
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 
 @SuppressWarnings("serial")
 public class MasterWindow extends JFrame {
