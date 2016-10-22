@@ -5,8 +5,9 @@ import java.io.PrintStream;
 
 import org.bukkit.ChatColor;
 
-import net.dusterthefirst.windowsxp.ConsoleOutputStream;
-import net.dusterthefirst.windowsxp.MasterWindow;
+import net.dusterthefirst.simplespigot.gui.MasterWindow;
+import net.dusterthefirst.simplespigot.util.ConsoleColors;
+import net.dusterthefirst.simplespigot.util.ConsoleOutputStream;
 import net.ftb.util.OSUtils;
 import net.ftb.util.OSUtils.OS;
 

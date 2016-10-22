@@ -3,7 +3,7 @@ package net.dusterthefirst.simplespigot;
 import org.bukkit.Server;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import net.dusterthefirst.windowsxp.MasterWindow;
+import net.dusterthefirst.simplespigot.gui.MasterWindow;
 
 public class Plugin extends JavaPlugin{
 

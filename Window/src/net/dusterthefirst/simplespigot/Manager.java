@@ -1,5 +1,7 @@
 package net.dusterthefirst.simplespigot;
 
+import org.bukkit.entity.Player;
+
 public class Manager {
 
 	static void start(){
@@ -16,6 +18,10 @@ public class Manager {
 	
 	static void setRam(){
 		
+	}
+	
+	static Player[] getPlayers(){
+		return null;	
 	}
 	
 }

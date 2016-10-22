@@ -1,8 +1,8 @@
-package net.dusterthefirst.simplespigot;
+package net.dusterthefirst.simplespigot.util;
 
 import java.awt.Color;
 
-import net.dusterthefirst.windowsxp.MasterWindow;
+import net.dusterthefirst.simplespigot.gui.MasterWindow;
 
 public class ConsoleColors {
 	

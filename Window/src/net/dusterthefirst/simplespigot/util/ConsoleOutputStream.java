@@ -1,10 +1,10 @@
-package net.dusterthefirst.windowsxp;
+package net.dusterthefirst.simplespigot.util;
 
 import java.awt.Color;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import net.dusterthefirst.simplespigot.ConsoleColors;
+import net.dusterthefirst.simplespigot.gui.MasterWindow;
 
 public class ConsoleOutputStream extends OutputStream {
 
