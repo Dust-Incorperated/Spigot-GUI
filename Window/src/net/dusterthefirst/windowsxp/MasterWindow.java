@@ -12,6 +12,7 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
+import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -20,6 +21,7 @@ import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
@@ -37,14 +39,16 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
+
+import net.dusterthefirst.simplespigot.Master.BIT;
+import net.ftb.util.OSUtils.OS;
 
 @SuppressWarnings("serial")
 public class MasterWindow extends JFrame {
 
 	private JPanel contentPane;
 	private JTextPane console;
+	private JList<?> plugins, players;
 
 	/**
 	 * Launch the application.
@@ -53,7 +57,7 @@ public class MasterWindow extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					MasterWindow frame = new MasterWindow();
+					MasterWindow frame = new MasterWindow(OS.WINDOWS, 32, 21);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -62,6 +66,59 @@ public class MasterWindow extends JFrame {
 		});
 	}
 	
+	/**
+	 * Warns If Wrong Bit Version Of Java On Your Computer
+	 * @param bitness
+	 */
+	public boolean warnBits(BIT bitness) {
+		switch (bitness) {
+		case a64on64:
+			return true;
+		case a32on32:
+			JOptionPane.showMessageDialog(contentPane,
+				    "It Is Not Reccomended To Run A Minecraft Server On A 32bit OS.\n"
+				    + "Your Ram Will Be Limited To 1.5G\n"
+				    + "Please Think About Using Another Computer",
+				    "32 Bit OS Warning",
+				    JOptionPane.WARNING_MESSAGE);
+			return true;
+		case a64on32:
+			JOptionPane.showMessageDialog(contentPane,
+				    "You Have A 64 Bit Java Version On A 32 Bit OS\n"
+				    + "Please Download A 32 Bit Version\n"
+				    + "Java Will Not Run",
+				    "64 Bit Java On 32 Bit OS",
+				    JOptionPane.ERROR_MESSAGE);
+			return false;
+		case a32on64:
+			JOptionPane.showMessageDialog(contentPane,
+					"You Have A 32 Bit Java Version On A 64 Bit OS\n"
+					+ "Please Download A 64 Bit Version\n"
+					+ "You Will Be Limited To 1.5G Of Ram",
+				    "32 Bit Java On 64 Bit OS",
+				    JOptionPane.WARNING_MESSAGE);
+			return true;
+		default:
+			return true;
+		}
+	}
+	
+	public JList<?> getPlayers() {
+		return players;
+	}
+
+	public void setPlayers(JList<?> players) {
+		this.players = players;
+	}
+
+	public JList<?> getPlugins() {
+		return plugins;
+	}
+
+	public void setPlugins(JList<?> plugins) {
+		this.plugins = plugins;
+	}
+
 	/**
 	 * Gets Console
 	 */
@@ -87,14 +144,18 @@ public class MasterWindow extends JFrame {
 
 	/**
 	 * Create the frame.
+	 * @param cores 
+	 * @param oSmem 
+	 * @param os 
+	 * @param bitness 
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public MasterWindow() {
+	public MasterWindow(OS os, long oSmem, int cores) {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
 			e.printStackTrace();
 		}
+		
 		//SETTINGS
 		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		setIconImage(Toolkit.getDefaultToolkit().getImage(MasterWindow.class.getResource("/net/dusterthefirst/windowsxp/icon.png")));
@@ -159,7 +220,7 @@ public class MasterWindow extends JFrame {
 			tabConsole.setLayout(new BorderLayout(0, 0));
 		
 			//Command Inp
-			JComboBox comboCommands = new JComboBox();
+			JComboBox<String> comboCommands = new JComboBox<String>();
 			tabConsole.add(comboCommands, BorderLayout.SOUTH);
 			comboCommands.setEditable(true);
 			comboCommands.addItem("");
@@ -175,30 +236,18 @@ public class MasterWindow extends JFrame {
 		//Commands Panel
 		JPanel tabCmdHeirarchy = new JPanel();
 		tabCmdHeirarchy.setBackground(new Color(255, 255, 255));
-		tabCmdHeirarchy.setBorder(new EmptyBorder(5, 5, 5, 5));
 		tabbedPane.addTab("Commands", null, tabCmdHeirarchy, "Command Heirarchy");
-		tabCmdHeirarchy.setLayout(new BorderLayout(0, 0));
-		
-			//Command Heirarcy
-			JTree commandTree = new JTree();
-			commandTree.setRootVisible(false);
-			commandTree.setModel(new DefaultTreeModel(
-				new DefaultMutableTreeNode("Commands") {
-					{
-						DefaultMutableTreeNode node_1;
-						node_1 = new DefaultMutableTreeNode("Minecraft");
-							node_1.add(new DefaultMutableTreeNode("/help"));
-						add(node_1);
-						node_1 = new DefaultMutableTreeNode("Spigot");
-							node_1.add(new DefaultMutableTreeNode("/reload"));
-						add(node_1);
-					}
-				}
-			));
-			commandTree.setToggleClickCount(1);
-			commandTree.setDragEnabled(true);
-			commandTree.setBackground(new Color(255, 255, 255));
-			tabCmdHeirarchy.add(commandTree);
+				tabCmdHeirarchy.setLayout(new BorderLayout(0, 0));
+				
+				//Command Heirarcy
+				JTree commandTree = new JTree();
+				commandTree.setBorder(new EmptyBorder(5, 5, 5, 5));
+				commandTree.setRootVisible(false);
+				commandTree.setToggleClickCount(1);
+				commandTree.setBackground(new Color(255, 255, 255));
+				JScrollPane scrollPane_1 = new JScrollPane(commandTree);
+				tabCmdHeirarchy.add(scrollPane_1, BorderLayout.CENTER);
+			
 		
 		//Running Plugins Panel
 		JPanel tabRngPlugins = new JPanel();
@@ -207,22 +256,14 @@ public class MasterWindow extends JFrame {
 		tabRngPlugins.setLayout(new BorderLayout(0, 0));
 			
 			//Plugins List
-			DefaultListModel listModel = new DefaultListModel();
-			listModel.addElement("Hello");
-			listModel.addElement("Hello");
-			listModel.addElement("Hello");
-			listModel.addElement("Hello");
-			listModel.addElement("Hello");
-			listModel.addElement("Hello");
-			listModel.addElement("Hello");
-			listModel.addElement("Hello");
-			JList pluginList = new JList(listModel);
+			DefaultListModel<String> listModel = new DefaultListModel<String>();
+			JList<String> pluginList = new JList<String>(listModel);
 			pluginList.setMaximumSize(new Dimension(10000, 10000));
 			pluginList.setMinimumSize(new Dimension(1, 1));
 			pluginList.add(new PopupMenu("Hek"));
 			pluginList.addMouseListener(new MouseAdapter() {
 			    public void mouseClicked(MouseEvent evt) {
-			        JList list = (JList)evt.getSource();
+			        JList<?> list = (JList<?>)evt.getSource();
 			        if (evt.getClickCount() == 2) {
 			            // Double-click detected
 			            int index = list.locationToIndex(evt.getPoint());
@@ -232,30 +273,54 @@ public class MasterWindow extends JFrame {
 			    }
 			});
 			
-			JEditorPane dtrpnYML = new JEditorPane();
-			dtrpnYML.setMinimumSize(new Dimension(1, 1));
-			dtrpnYML.setText("Select A Plugin");
+			JEditorPane pluginYML = new JEditorPane();
+			pluginYML.setMinimumSize(new Dimension(1, 1));
+			pluginYML.setText("Select A Plugin");
 			
-			JSplitPane splitPane = new JSplitPane();
-			splitPane.setLeftComponent(pluginList);
-			splitPane.setRightComponent(dtrpnYML);
-			tabRngPlugins.add(splitPane, BorderLayout.CENTER);
+			JSplitPane pluginz = new JSplitPane();
+			pluginz.setLeftComponent(pluginList);
+			pluginz.setRightComponent(pluginYML);
+			tabRngPlugins.add(pluginz, BorderLayout.CENTER);
 			
 			JPanel tabPlayers = new JPanel();
 			tabPlayers.setBackground(new Color(255, 255, 255));
 			tabPlayers.setToolTipText("Online Players");
 			tabbedPane.addTab("Players", null, tabPlayers, null);
+			tabPlayers.setLayout(new BorderLayout(0, 0));
+			
+			JSplitPane playerz = new JSplitPane();
+			tabPlayers.add(playerz);
+			
+			JList<?> playerList = new JList<Object>();
+			playerList.setMinimumSize(new Dimension(1, 1));
+			playerList.setMaximumSize(new Dimension(10000, 10000));
+			playerz.setLeftComponent(playerList);
+			
+			JPanel playerOptions = new JPanel();
+			playerz.setRightComponent(playerOptions);
 			
 			JPanel tabStart = new JPanel();
 			tabStart.setBackground(new Color(255, 255, 255));
 			tabStart.setToolTipText("Server Start Settings");
 			tabbedPane.addTab("Quick Start", null, tabStart, null);
 			
+			JButton start = new JButton("Start");
+			start.setPreferredSize(new Dimension(100, 23));
+			JButton stop = new JButton("Stop");
+			
+			tabStart.setLayout(new BorderLayout(0, 0));
+			
+			JSplitPane splitPane = new JSplitPane();
+			splitPane.setLeftComponent(start);
+			splitPane.setRightComponent(stop);
+			tabStart.add(splitPane, BorderLayout.SOUTH);
+			
 			JPanel tabOptions = new JPanel();
 			tabOptions.setBackground(new Color(255, 255, 255));
 			tabOptions.setToolTipText("Server And GUI Options");
 			tabbedPane.addTab("Settings", null, tabOptions, null);
 	}
+
 }
 
 class StayOpenCheckBoxMenuItemUI extends BasicCheckBoxMenuItemUI {
@@ -269,3 +334,4 @@ class StayOpenCheckBoxMenuItemUI extends BasicCheckBoxMenuItemUI {
 	      return new StayOpenCheckBoxMenuItemUI();
 	   }
 	}
+

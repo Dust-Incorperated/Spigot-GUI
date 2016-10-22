@@ -12,7 +12,6 @@ public class Plugin extends JavaPlugin{
 	
 	@Override
 	public void onLoad() {
-		frame = new MasterWindow();
 	}
 	
 	@Override
