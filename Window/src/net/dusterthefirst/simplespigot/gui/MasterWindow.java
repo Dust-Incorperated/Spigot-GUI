@@ -7,19 +7,14 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
 
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -30,38 +25,25 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
-import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
 import javax.swing.JTree;
 import javax.swing.MenuSelectionManager;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleContext;
 
-import net.dusterthefirst.simplespigot.Master.BIT;
-import net.dusterthefirst.simplespigot.listeners.ServerControlButtonListener;
-import net.dusterthefirst.simplespigot.listeners.ServerControlButtonListener.ServerControl;
-import net.dusterthefirst.simplespigot.util.OpenFileFilter;
+import net.dusterthefirst.simplespigot.Plugin.BIT;
 import net.ftb.util.OSUtils.OS;
 
 @SuppressWarnings("serial")
 public class MasterWindow extends JFrame {
 
 	private JPanel contentPane;
-	private JTextPane console;
-	public JComboBox<String> comboCommands;
 	public JTree commandTree;
 	public JList<String> pluginList;
 	public JEditorPane pluginYML;
@@ -71,18 +53,12 @@ public class MasterWindow extends JFrame {
 	public JCheckBox chckbxOp;
 	public JTextField txtUuid;
 	public JCheckBox chckbxWhitelisted;
-	public JSlider ramSlider;
-	public JCheckBox chckbxWhitelist;
-	public JButton stop;
-	public JButton start;
-	public JButton restart;
 	public JEditorPane properties;
 	public JTextField cpuInfo;
 	public JTextField ramInfo;
 	public JTextField osInfo;
 	public JCheckBox notificationsEnabled;
 	public Choice notifType;
-	public JComboBox<Object> comboBox;
 	
 	/**
 	 * Warns If Wrong Bit Version Of Java On Your Computer
@@ -120,29 +96,6 @@ public class MasterWindow extends JFrame {
 			return true;
 		}
 	}
-	
-	/**
-	 * Gets Console
-	 */
-	public JTextPane getConsole(){
-		return console;
-	}
-	
-	/**
-	 * Writes To The Console
-	 * @param msg Message
-	 * @param red Color
-	 */
-	public void writeToConsole(String msg, Color color)
-    {
-        StyleContext sc = StyleContext.getDefaultStyleContext();
-        AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, color);
-
-        int len = console.getDocument().getLength();
-        console.setCaretPosition(len);
-        console.setCharacterAttributes(aset, false);
-        console.replaceSelection(msg);
-    }
 
 	/**
 	 * Create the frame.
@@ -192,10 +145,6 @@ public class MasterWindow extends JFrame {
 		//Content Pane
 		contentPane = new JPanel();
 			JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-				JPanel tabConsole = new JPanel();
-					console = new JTextPane();
-					JScrollPane scrollPane = new JScrollPane(console);
-					comboCommands = new JComboBox<String>();
 				JPanel tabCmdHeirarchy = new JPanel();
 					commandTree = new JTree();
 					JScrollPane scrollPane_1 = new JScrollPane(commandTree);
@@ -216,20 +165,6 @@ public class MasterWindow extends JFrame {
 						JPanel playerOptions2 = new JPanel();
 							txtUuid = new JTextField();
 							chckbxWhitelisted = new JCheckBox("Whitelisted");
-				JPanel tabStart = new JPanel();
-					JPanel settings = new JPanel();
-						comboBox = new JComboBox<Object>();
-						JButton btnBrowse = new JButton("Browse...");
-					JPanel settings_2 = new JPanel();
-						JTextField ram = new JTextField();
-						ramSlider = new JSlider();
-					JPanel settings_3 = new JPanel();
-						chckbxWhitelist = new JCheckBox("Whitelist Enabled");
-					JPanel buttons = new JPanel();
-						stop = new JButton("Stop");
-						JSplitPane splitPane = new JSplitPane();
-							start = new JButton("Start");
-							restart = new JButton("Reboot");
 					JPanel tabServerOptions = new JPanel();
 						properties = new JEditorPane();
 						JScrollPane scrollpane_3 = new JScrollPane(properties);
@@ -244,26 +179,15 @@ public class MasterWindow extends JFrame {
 								notifType = new Choice();
 						JPanel footer = new JPanel();
 							JLabel footerLbl = new JLabel("Dusterthefirst 2016");
-				
-		//Adds Tabs
-		tabbedPane.addTab("Console", null, tabConsole, "Server Console");
 		tabbedPane.addTab("Commands", null, tabCmdHeirarchy, "Command Heirarchy");
 		tabbedPane.addTab("Plugins", null, tabRngPlugins, "Running Plugins");
 		tabbedPane.addTab("Players", null, tabPlayers, "Online And Offline Players");
-		tabbedPane.addTab("Quick Start", null, tabStart, "Server Start And Settings");
 		tabbedPane.addTab("Server Options", null, tabServerOptions, "Server Properties");
 		tabbedPane.addTab("Settings", null, tabOptions, "GUI Settings");
 		
 		//Settings
 		contentPane.setLayout(new BorderLayout(0, 0));
 		contentPane.add(tabbedPane, BorderLayout.CENTER);
-			tabConsole.setBackground(new Color(255, 255, 255));
-			tabConsole.setLayout(new BorderLayout(0, 0));
-			tabConsole.add(comboCommands, BorderLayout.SOUTH);
-			tabConsole.add(scrollPane, BorderLayout.CENTER);
-				comboCommands.setEditable(true);
-				comboCommands.addItem("");
-				console.setForeground(Color.BLACK);
 			tabCmdHeirarchy.setBackground(new Color(255, 255, 255));
 			tabCmdHeirarchy.setLayout(new BorderLayout(0, 0));
 			tabCmdHeirarchy.add(scrollPane_1, BorderLayout.CENTER);
@@ -302,66 +226,6 @@ public class MasterWindow extends JFrame {
 								txtUuid.setEditable(false);
 								txtUuid.setText("UUID:");
 								txtUuid.setColumns(10);
-			tabStart.setBackground(new Color(255, 255, 255));
-			tabStart.setToolTipText("Server Start Settings");
-			tabStart.setLayout(new BorderLayout(0, 0));
-			tabStart.add(settings, BorderLayout.NORTH);
-			tabStart.add(buttons, BorderLayout.SOUTH);
-				settings.setLayout(new BorderLayout(0, 0));
-				settings.add(comboBox, BorderLayout.CENTER);
-				settings.add(btnBrowse, BorderLayout.EAST);
-				settings.add(settings_2, BorderLayout.SOUTH);
-				buttons.setLayout(new BorderLayout(0, 0));
-				buttons.add(splitPane, BorderLayout.SOUTH);
-				buttons.add(stop, BorderLayout.NORTH);
-					btnBrowse.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							JFileChooser fc = new JFileChooser();
-							fc.setFileFilter(new OpenFileFilter("jar", "Java Jar File"));
-							fc.setAcceptAllFileFilterUsed(false);
-							int returnVal = fc.showOpenDialog(MasterWindow.this);
-				
-					        if (returnVal == JFileChooser.APPROVE_OPTION) {
-					            File file = fc.getSelectedFile();
-					            comboBox.getEditor().setItem(file.getAbsolutePath());
-					        }
-						}
-					});
-					start.setPreferredSize(new Dimension(100, 23));
-					start.addActionListener(new ServerControlButtonListener(ServerControl.START));
-					stop.addActionListener(new ServerControlButtonListener(ServerControl.STOP));
-					restart.addActionListener(new ServerControlButtonListener(ServerControl.RESTART));
-					splitPane.setLeftComponent(start);
-					splitPane.setRightComponent(restart);
-					comboBox.setEditable(true);
-					settings_2.setLayout(new BorderLayout(0, 0));
-					settings_2.add(ram, BorderLayout.EAST);
-					settings_2.add(ramSlider, BorderLayout.CENTER);
-					settings_2.add(settings_3, BorderLayout.SOUTH);
-						ram.setBackground(new Color(255, 255, 255));
-						ram.setEditable(false);
-						ram.setText("1.0G");
-						ram.setColumns(10);
-						ramSlider.setBackground(new Color(255, 255, 255));
-						ramSlider.setMinorTickSpacing(25);
-						ramSlider.setMinimum(100);
-						ramSlider.setMaximum(100);
-						ramSlider.setMajorTickSpacing(100);
-						ramSlider.setPaintTicks(true);
-						ramSlider.setSnapToTicks(true);
-						ramSlider.setValue(100);
-						ramSlider.addChangeListener(new ChangeListener() {
-							@Override
-							public void stateChanged(ChangeEvent e) {
-								 JSlider source = (JSlider)e.getSource();
-								 double value = (double) source.getValue()/100;
-								 ram.setText(value + "G");
-							}
-						});
-						settings_3.setLayout(new BorderLayout(0, 0));
-						settings_3.add(chckbxWhitelist, BorderLayout.NORTH);
-							chckbxWhitelist.setBackground(new Color(255, 255, 255));
 			tabServerOptions.setBackground(new Color(255, 255, 255));
 			tabServerOptions.setLayout(new BorderLayout(0, 0));
 			tabServerOptions.add(scrollpane_3, BorderLayout.CENTER);
