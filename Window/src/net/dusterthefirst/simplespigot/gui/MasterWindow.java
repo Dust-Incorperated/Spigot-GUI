@@ -5,7 +5,6 @@ import java.awt.Choice;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -52,6 +51,8 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 
 import net.dusterthefirst.simplespigot.Master.BIT;
+import net.dusterthefirst.simplespigot.listeners.ServerControlButtonListener;
+import net.dusterthefirst.simplespigot.listeners.ServerControlButtonListener.ServerControl;
 import net.dusterthefirst.simplespigot.util.OpenFileFilter;
 import net.ftb.util.OSUtils.OS;
 
@@ -74,29 +75,14 @@ public class MasterWindow extends JFrame {
 	public JCheckBox chckbxWhitelist;
 	public JButton stop;
 	public JButton start;
-	public JButton reboot;
+	public JButton restart;
 	public JEditorPane properties;
 	public JTextField cpuInfo;
 	public JTextField ramInfo;
 	public JTextField osInfo;
 	public JCheckBox notificationsEnabled;
 	public Choice notifType;
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					MasterWindow frame = new MasterWindow(OS.WINDOWS, 32, 21);
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+	public JComboBox<Object> comboBox;
 	
 	/**
 	 * Warns If Wrong Bit Version Of Java On Your Computer
@@ -163,7 +149,6 @@ public class MasterWindow extends JFrame {
 	 * @param cores 
 	 * @param oSmem 
 	 * @param os 
-	 * @param bitness 
 	 */
 	public MasterWindow(OS os, long oSmem, int cores) {
 		try {
@@ -233,7 +218,7 @@ public class MasterWindow extends JFrame {
 							chckbxWhitelisted = new JCheckBox("Whitelisted");
 				JPanel tabStart = new JPanel();
 					JPanel settings = new JPanel();
-						JComboBox<?> comboBox = new JComboBox<Object>();
+						comboBox = new JComboBox<Object>();
 						JButton btnBrowse = new JButton("Browse...");
 					JPanel settings_2 = new JPanel();
 						JTextField ram = new JTextField();
@@ -244,7 +229,7 @@ public class MasterWindow extends JFrame {
 						stop = new JButton("Stop");
 						JSplitPane splitPane = new JSplitPane();
 							start = new JButton("Start");
-							reboot = new JButton("Reboot");
+							restart = new JButton("Reboot");
 					JPanel tabServerOptions = new JPanel();
 						properties = new JEditorPane();
 						JScrollPane scrollpane_3 = new JScrollPane(properties);
@@ -264,7 +249,7 @@ public class MasterWindow extends JFrame {
 		tabbedPane.addTab("Console", null, tabConsole, "Server Console");
 		tabbedPane.addTab("Commands", null, tabCmdHeirarchy, "Command Heirarchy");
 		tabbedPane.addTab("Plugins", null, tabRngPlugins, "Running Plugins");
-		tabbedPane.addTab("Players", null, tabPlayers, "Online Players");
+		tabbedPane.addTab("Players", null, tabPlayers, "Online And Offline Players");
 		tabbedPane.addTab("Quick Start", null, tabStart, "Server Start And Settings");
 		tabbedPane.addTab("Server Options", null, tabServerOptions, "Server Properties");
 		tabbedPane.addTab("Settings", null, tabOptions, "GUI Settings");
@@ -322,13 +307,12 @@ public class MasterWindow extends JFrame {
 			tabStart.setLayout(new BorderLayout(0, 0));
 			tabStart.add(settings, BorderLayout.NORTH);
 			tabStart.add(buttons, BorderLayout.SOUTH);
-
 				settings.setLayout(new BorderLayout(0, 0));
 				settings.add(comboBox, BorderLayout.CENTER);
 				settings.add(btnBrowse, BorderLayout.EAST);
 				settings.add(settings_2, BorderLayout.SOUTH);
-				buttons.add(splitPane, BorderLayout.SOUTH);
 				buttons.setLayout(new BorderLayout(0, 0));
+				buttons.add(splitPane, BorderLayout.SOUTH);
 				buttons.add(stop, BorderLayout.NORTH);
 					btnBrowse.addActionListener(new ActionListener() {
 						@Override
@@ -345,8 +329,11 @@ public class MasterWindow extends JFrame {
 						}
 					});
 					start.setPreferredSize(new Dimension(100, 23));
+					start.addActionListener(new ServerControlButtonListener(ServerControl.START));
+					stop.addActionListener(new ServerControlButtonListener(ServerControl.STOP));
+					restart.addActionListener(new ServerControlButtonListener(ServerControl.RESTART));
 					splitPane.setLeftComponent(start);
-					splitPane.setRightComponent(reboot);
+					splitPane.setRightComponent(restart);
 					comboBox.setEditable(true);
 					settings_2.setLayout(new BorderLayout(0, 0));
 					settings_2.add(ram, BorderLayout.EAST);
@@ -354,7 +341,7 @@ public class MasterWindow extends JFrame {
 					settings_2.add(settings_3, BorderLayout.SOUTH);
 						ram.setBackground(new Color(255, 255, 255));
 						ram.setEditable(false);
-						ram.setText("1.00G");
+						ram.setText("1.0G");
 						ram.setColumns(10);
 						ramSlider.setBackground(new Color(255, 255, 255));
 						ramSlider.setMinorTickSpacing(25);

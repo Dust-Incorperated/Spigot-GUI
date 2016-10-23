@@ -32,7 +32,7 @@ public class ConsoleOutputStream extends OutputStream {
          return;
 
       if (b == '\n') {
-         final String text = sb.toString() + "\n";
+         final String text = sb.toString();
          ConsoleColors.parse(text, window, color);
          sb.setLength(0);
 

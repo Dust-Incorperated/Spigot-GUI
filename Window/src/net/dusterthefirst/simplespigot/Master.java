@@ -23,10 +23,8 @@ public class Master {
 	public static void main(String[] args) throws IOException{
 		createWindow(OSUtils.getCurrentOS(), OSUtils.getOSTotalMemory(), OSUtils.getCores());
 		setConsole();
-		ProcessBuilder builder = new ProcessBuilder("hello");
-		builder.redirectErrorStream(true);
-		//Process process = builder.start();
 		System.out.println(ChatColor.RED + "R" + ChatColor.GOLD + "G" +  ChatColor.DARK_GRAY + "GR" +  ChatColor.DARK_PURPLE + "P");
+		Manager.init(window, out);
 	}
 	
 	private static void createWindow(OS os, long OSmem, int cores) {
