@@ -1,16 +1,15 @@
 package net.dusterthefirst.simplespigot.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Choice;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.PopupMenu;
+import java.awt.SystemColor;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 
 import javax.swing.ButtonGroup;
@@ -23,9 +22,11 @@ import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
@@ -37,6 +38,7 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JTree;
 import javax.swing.MenuSelectionManager;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
@@ -58,10 +60,27 @@ public class MasterWindow extends JFrame {
 
 	private JPanel contentPane;
 	private JTextPane console;
-	private JList<?> plugins, players;
-	private JTextField txtUuid;
-	private JTextField ram;
-	private JTextField txtWhitelist;
+	public JComboBox<String> comboCommands;
+	public JTree commandTree;
+	public JList<String> pluginList;
+	public JEditorPane pluginYML;
+	public JList<Object> playerList;
+	public JButton btnKick;
+	public JCheckBox chckbxBanned;
+	public JCheckBox chckbxOp;
+	public JTextField txtUuid;
+	public JCheckBox chckbxWhitelisted;
+	public JSlider ramSlider;
+	public JCheckBox chckbxWhitelist;
+	public JButton stop;
+	public JButton start;
+	public JButton reboot;
+	public JEditorPane properties;
+	public JTextField cpuInfo;
+	public JTextField ramInfo;
+	public JTextField osInfo;
+	public JCheckBox notificationsEnabled;
+	public Choice notifType;
 
 	/**
 	 * Launch the application.
@@ -116,22 +135,6 @@ public class MasterWindow extends JFrame {
 		}
 	}
 	
-	public JList<?> getPlayers() {
-		return players;
-	}
-
-	public void setPlayers(JList<?> players) {
-		this.players = players;
-	}
-
-	public JList<?> getPlugins() {
-		return plugins;
-	}
-
-	public void setPlugins(JList<?> plugins) {
-		this.plugins = plugins;
-	}
-
 	/**
 	 * Gets Console
 	 */
@@ -169,308 +172,252 @@ public class MasterWindow extends JFrame {
 			e.printStackTrace();
 		}
 		
-		//SETTINGS
-		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		setIconImage(Toolkit.getDefaultToolkit().getImage(MasterWindow.class.getResource("/net/dusterthefirst/res/icon.png")));
-		setTitle("Windowz XP");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
-		
 		//MENU BAR
 		JMenuBar menuBar = new JMenuBar();
-		menuBar.setBackground(Color.LIGHT_GRAY);
-		menuBar.setBorderPainted(false);
-		setJMenuBar(menuBar);
-		
-			//MENU ITEMS
-			JMenu mnFile = new JMenu("File");
-			menuBar.add(mnFile);
-			
 			JMenu mnEdit = new JMenu("Edit");
-			menuBar.add(mnEdit);
-			
+				JMenuItem mntmCopyConsole = new JMenuItem("Copy Console");
+				JMenuItem mntmSaveConsoleTo = new JMenuItem("Save Console To File");
 			JMenu mnView = new JMenu("View");
-			menuBar.add(mnView);
-		
-				//VEIW Items
 				JCheckBoxMenuItem chckbxmntmAdvancedConsole = new JCheckBoxMenuItem("Advanced Console");
-				chckbxmntmAdvancedConsole.setUI(new StayOpenCheckBoxMenuItemUI());
-				mnView.add(chckbxmntmAdvancedConsole);
-				
 				JMenu mnMode = new JMenu("Mode");
-				mnView.add(mnMode);
-		
-					//Modes
 					JRadioButtonMenuItem rdbtnmntmNight = new JRadioButtonMenuItem("Night");
-					rdbtnmntmNight.setUI(new StayOpenCheckBoxMenuItemUI());
-					mnMode.add(rdbtnmntmNight);
-					
 					JRadioButtonMenuItem rdbtnmntmDay = new JRadioButtonMenuItem("Day");
-					rdbtnmntmDay.setSelected(true);
-					rdbtnmntmDay.setUI(new StayOpenCheckBoxMenuItemUI());
-					mnMode.add(rdbtnmntmDay);
-		
 					ButtonGroup group = new ButtonGroup();
+					
+		
+		//Settings
+		chckbxmntmAdvancedConsole.setUI(new StayOpenCheckBoxMenuItemUI());
+		rdbtnmntmNight.setUI(new StayOpenCheckBoxMenuItemUI());
+		rdbtnmntmDay.setSelected(true);
+		rdbtnmntmDay.setUI(new StayOpenCheckBoxMenuItemUI());
+		menuBar.setBorderPainted(false);
+		
+		//Adds All Parts
+		menuBar.add(mnEdit);
+			mnEdit.add(mntmCopyConsole);
+			mnEdit.add(mntmSaveConsoleTo);
+		menuBar.add(mnView);
+			mnView.add(chckbxmntmAdvancedConsole);
+			mnView.add(mnMode);
+				mnMode.add(rdbtnmntmNight);
+				mnMode.add(rdbtnmntmDay);
 					group.add(rdbtnmntmDay);
 					group.add(rdbtnmntmNight);
 			
-			JMenu mnHelp = new JMenu("Help");
-			menuBar.add(mnHelp);
-			
-		//Pane
+		//Content Pane
 		contentPane = new JPanel();
-		setContentPane(contentPane);
-		contentPane.setLayout(new BorderLayout(0, 0));
-		
-		//TABS
-		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		contentPane.add(tabbedPane, BorderLayout.CENTER);
-		
-		//Console Panel
-		JPanel tabConsole = new JPanel();
-		tabConsole.setBackground(new Color(255, 255, 255));
-		tabbedPane.addTab("Console", null, tabConsole, "Server Console");
-			tabConsole.setLayout(new BorderLayout(0, 0));
-		
-			//Command Inp
-			JComboBox<String> comboCommands = new JComboBox<String>();
-			tabConsole.add(comboCommands, BorderLayout.SOUTH);
-			comboCommands.setEditable(true);
-			comboCommands.addItem("");
-			comboCommands.addItem("help");
-			
-				//Console
-				console = new JTextPane();
-				console.setForeground(Color.BLACK);
-			
-				JScrollPane scrollPane = new JScrollPane(console);
-				tabConsole.add(scrollPane, BorderLayout.CENTER);
-		
-		//Commands Panel
-		JPanel tabCmdHeirarchy = new JPanel();
-		tabCmdHeirarchy.setBackground(new Color(255, 255, 255));
-		tabbedPane.addTab("Commands", null, tabCmdHeirarchy, "Command Heirarchy");
-				tabCmdHeirarchy.setLayout(new BorderLayout(0, 0));
+			JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+				JPanel tabConsole = new JPanel();
+					console = new JTextPane();
+					JScrollPane scrollPane = new JScrollPane(console);
+					comboCommands = new JComboBox<String>();
+				JPanel tabCmdHeirarchy = new JPanel();
+					commandTree = new JTree();
+					JScrollPane scrollPane_1 = new JScrollPane(commandTree);
+				JPanel tabRngPlugins = new JPanel();
+					JSplitPane pluginz = new JSplitPane();
+						DefaultListModel<String> listModel = new DefaultListModel<String>();
+						pluginList = new JList<String>(listModel);
+						pluginYML = new JEditorPane();
+						JScrollPane scrollpane_2 = new JScrollPane(pluginYML);
+				JPanel tabPlayers = new JPanel();
+					JSplitPane playerz = new JSplitPane();
+						playerList = new JList<Object>();
+						JPanel playerOptions = new JPanel();
+							btnKick = new JButton("Kick");
+						JPanel playerOptions1 = new JPanel();
+							chckbxBanned = new JCheckBox("Banned");
+							chckbxOp = new JCheckBox("Op");
+						JPanel playerOptions2 = new JPanel();
+							txtUuid = new JTextField();
+							chckbxWhitelisted = new JCheckBox("Whitelisted");
+				JPanel tabStart = new JPanel();
+					JPanel settings = new JPanel();
+						JComboBox<?> comboBox = new JComboBox<Object>();
+						JButton btnBrowse = new JButton("Browse...");
+					JPanel settings_2 = new JPanel();
+						JTextField ram = new JTextField();
+						ramSlider = new JSlider();
+					JPanel settings_3 = new JPanel();
+						chckbxWhitelist = new JCheckBox("Whitelist Enabled");
+					JPanel buttons = new JPanel();
+						stop = new JButton("Stop");
+						JSplitPane splitPane = new JSplitPane();
+							start = new JButton("Start");
+							reboot = new JButton("Reboot");
+					JPanel tabServerOptions = new JPanel();
+						properties = new JEditorPane();
+						JScrollPane scrollpane_3 = new JScrollPane(properties);
+					JPanel tabOptions = new JPanel();
+						JPanel computerInfo = new JPanel();
+							cpuInfo = new JTextField();
+							ramInfo = new JTextField();
+							osInfo = new JTextField();
+						JPanel notif = new JPanel();
+							JPanel notifTop = new JPanel();
+								notificationsEnabled = new JCheckBox("Notifications");
+								notifType = new Choice();
+						JPanel footer = new JPanel();
+							JLabel footerLbl = new JLabel("Dusterthefirst 2016");
 				
-				//Command Heirarcy
-				JTree commandTree = new JTree();
+		//Adds Tabs
+		tabbedPane.addTab("Console", null, tabConsole, "Server Console");
+		tabbedPane.addTab("Commands", null, tabCmdHeirarchy, "Command Heirarchy");
+		tabbedPane.addTab("Plugins", null, tabRngPlugins, "Running Plugins");
+		tabbedPane.addTab("Players", null, tabPlayers, "Online Players");
+		tabbedPane.addTab("Quick Start", null, tabStart, "Server Start And Settings");
+		tabbedPane.addTab("Server Options", null, tabServerOptions, "Server Properties");
+		tabbedPane.addTab("Settings", null, tabOptions, "GUI Settings");
+		
+		//Settings
+		contentPane.setLayout(new BorderLayout(0, 0));
+		contentPane.add(tabbedPane, BorderLayout.CENTER);
+			tabConsole.setBackground(new Color(255, 255, 255));
+			tabConsole.setLayout(new BorderLayout(0, 0));
+			tabConsole.add(comboCommands, BorderLayout.SOUTH);
+			tabConsole.add(scrollPane, BorderLayout.CENTER);
+				comboCommands.setEditable(true);
+				comboCommands.addItem("");
+				console.setForeground(Color.BLACK);
+			tabCmdHeirarchy.setBackground(new Color(255, 255, 255));
+			tabCmdHeirarchy.setLayout(new BorderLayout(0, 0));
+			tabCmdHeirarchy.add(scrollPane_1, BorderLayout.CENTER);
 				commandTree.setBorder(new EmptyBorder(5, 5, 5, 5));
 				commandTree.setRootVisible(false);
 				commandTree.setToggleClickCount(1);
 				commandTree.setBackground(new Color(255, 255, 255));
-				JScrollPane scrollPane_1 = new JScrollPane(commandTree);
-				tabCmdHeirarchy.add(scrollPane_1, BorderLayout.CENTER);
-			
-		
-		//Running Plugins Panel
-		JPanel tabRngPlugins = new JPanel();
-		tabRngPlugins.setBackground(new Color(255, 255, 255));
-		tabbedPane.addTab("Plugins", null, tabRngPlugins, "Running Plugins");
-		tabRngPlugins.setLayout(new BorderLayout(0, 0));
-			
-			//Plugins List
-			DefaultListModel<String> listModel = new DefaultListModel<String>();
-			JList<String> pluginList = new JList<String>(listModel);
-			pluginList.setMaximumSize(new Dimension(10000, 10000));
-			pluginList.setMinimumSize(new Dimension(1, 1));
-			pluginList.add(new PopupMenu("Hek"));
-			pluginList.addMouseListener(new MouseAdapter() {
-			    public void mouseClicked(MouseEvent evt) {
-			        JList<?> list = (JList<?>)evt.getSource();
-			        if (evt.getClickCount() == 2) {
-			            // Double-click detected
-			            int index = list.locationToIndex(evt.getPoint());
-			            System.out.println(index);
-			            
-			        }
-			    }
-			});
-			
-			JEditorPane pluginYML = new JEditorPane();
-			pluginYML.setMinimumSize(new Dimension(1, 1));
-			pluginYML.setText("Select A Plugin");
-			
-			JSplitPane pluginz = new JSplitPane();
-			pluginz.setLeftComponent(pluginList);
-			pluginz.setRightComponent(pluginYML);
+			tabRngPlugins.setBackground(new Color(255, 255, 255));
+			tabRngPlugins.setLayout(new BorderLayout(0, 0));
 			tabRngPlugins.add(pluginz, BorderLayout.CENTER);
-			
-			JPanel tabPlayers = new JPanel();
+				pluginz.setLeftComponent(pluginList);
+				pluginz.setRightComponent(scrollpane_2);
+					pluginList.setMinimumSize(new Dimension(1, 1));
+					pluginYML.setMinimumSize(new Dimension(1, 1));
+					pluginYML.setText("Select A Plugin");
 			tabPlayers.setBackground(new Color(255, 255, 255));
 			tabPlayers.setToolTipText("Online Players");
-			tabbedPane.addTab("Players", null, tabPlayers, null);
 			tabPlayers.setLayout(new BorderLayout(0, 0));
-			
-			JSplitPane playerz = new JSplitPane();
 			tabPlayers.add(playerz, BorderLayout.CENTER);
-			
-			JList<?> playerList = new JList<Object>();
-			playerList.setMinimumSize(new Dimension(1, 1));
-			playerList.setMaximumSize(new Dimension(10000, 10000));
-			playerz.setLeftComponent(playerList);
-			
-			JPanel playerOptions = new JPanel();
-			playerz.setRightComponent(playerOptions);
-			playerOptions.setLayout(new BorderLayout(0, 0));
-			
-			JButton btnKick = new JButton("Kick");
-			playerOptions.add(btnKick, BorderLayout.SOUTH);
-			
-			JPanel panel = new JPanel();
-			playerOptions.add(panel, BorderLayout.NORTH);
-			panel.setLayout(new BorderLayout(0, 0));
-			
-			JCheckBox chckbxBanned = new JCheckBox("Banned");
-			panel.add(chckbxBanned, BorderLayout.NORTH);
-			
-			JCheckBox chckbxOp = new JCheckBox("Op");
-			panel.add(chckbxOp, BorderLayout.CENTER);
-			
-			JPanel panel_3 = new JPanel();
-			panel.add(panel_3, BorderLayout.SOUTH);
-			panel_3.setLayout(new BorderLayout(0, 0));
-			
-			JCheckBox chckbxWhitelisted = new JCheckBox("Whitelisted");
-			panel_3.add(chckbxWhitelisted, BorderLayout.CENTER);
-			
-			txtUuid = new JTextField();
-			panel_3.add(txtUuid, BorderLayout.SOUTH);
-			txtUuid.setBorder(new EmptyBorder(0, 5, 0, 0));
-			txtUuid.setToolTipText("Players UUID");
-			txtUuid.setEditable(false);
-			txtUuid.setText("UUID:");
-			txtUuid.setColumns(10);
-			
-			JPanel tabStart = new JPanel();
+				playerz.setLeftComponent(playerList);
+				playerz.setRightComponent(playerOptions);
+					playerList.setMinimumSize(new Dimension(1, 1));
+					playerList.setMaximumSize(new Dimension(10000, 10000));
+					playerOptions.setLayout(new BorderLayout(0, 0));
+					playerOptions.add(btnKick, BorderLayout.SOUTH);
+					playerOptions.add(playerOptions1, BorderLayout.NORTH);
+						playerOptions1.setLayout(new BorderLayout(0, 0));
+						playerOptions1.add(chckbxBanned, BorderLayout.NORTH);
+						playerOptions1.add(chckbxOp, BorderLayout.CENTER);
+						playerOptions1.add(playerOptions2, BorderLayout.SOUTH);
+							playerOptions2.setLayout(new BorderLayout(0, 0));
+							playerOptions2.add(chckbxWhitelisted, BorderLayout.CENTER);
+							playerOptions2.add(txtUuid, BorderLayout.SOUTH);
+								txtUuid.setBorder(new EmptyBorder(0, 5, 0, 0));
+								txtUuid.setToolTipText("Players UUID");
+								txtUuid.setEditable(false);
+								txtUuid.setText("UUID:");
+								txtUuid.setColumns(10);
 			tabStart.setBackground(new Color(255, 255, 255));
 			tabStart.setToolTipText("Server Start Settings");
-			tabbedPane.addTab("Quick Start", null, tabStart, null);
-			
 			tabStart.setLayout(new BorderLayout(0, 0));
-			
-			JPanel settings = new JPanel();
 			tabStart.add(settings, BorderLayout.NORTH);
-			settings.setLayout(new BorderLayout(0, 0));
-			
-			JComboBox<?> comboBox = new JComboBox<Object>();
-			comboBox.setEditable(true);
-			settings.add(comboBox, BorderLayout.CENTER);
-			
-			JButton btnBrowse = new JButton("Browse...");
-			settings.add(btnBrowse, BorderLayout.EAST);
-			
-			JPanel settings_2 = new JPanel();
-			settings.add(settings_2, BorderLayout.SOUTH);
-			settings_2.setLayout(new BorderLayout(0, 0));
-			
-			ram = new JTextField();
-			ram.setBackground(new Color(255, 255, 255));
-			ram.setEditable(false);
-			ram.setText("0.00G");
-			settings_2.add(ram, BorderLayout.EAST);
-			ram.setColumns(10);
-			
-			JSlider slider = new JSlider();
-			slider.setBackground(new Color(255, 255, 255));
-			slider.setMinorTickSpacing(25);
-			slider.setMinimum(100);
-			settings_2.add(slider, BorderLayout.CENTER);
-			slider.setMaximum(300);
-			slider.setMajorTickSpacing(100);
-			slider.setPaintTicks(true);
-			slider.setSnapToTicks(true);
-			slider.setValue(100);
-			
-			JPanel panel_4 = new JPanel();
-			settings_2.add(panel_4, BorderLayout.SOUTH);
-			panel_4.setLayout(new BorderLayout(0, 0));
-			
-			JCheckBox chckbxWhitelist = new JCheckBox("Whitelist Enabled");
-			chckbxWhitelist.setBackground(new Color(255, 255, 255));
-			panel_4.add(chckbxWhitelist, BorderLayout.NORTH);
-			
-			JPanel buttons = new JPanel();
 			tabStart.add(buttons, BorderLayout.SOUTH);
-			buttons.setLayout(new BorderLayout(0, 0));
-			
-			JButton start = new JButton("Start");
-			start.setPreferredSize(new Dimension(100, 23));
-			JButton reboot = new JButton("Reboot");
-			
-			JSplitPane splitPane = new JSplitPane();
-			buttons.add(splitPane, BorderLayout.SOUTH);
-			splitPane.setLeftComponent(start);
-			splitPane.setRightComponent(reboot);
-			
-			JButton stop = new JButton("Stop");
-			buttons.add(stop, BorderLayout.NORTH);
-			slider.addChangeListener(new ChangeListener() {
-				@Override
-				public void stateChanged(ChangeEvent e) {
-					 JSlider source = (JSlider)e.getSource();
-					 double value = (double) source.getValue()/100;
-					 ram.setText(value + "G");
-				}
-			});
-			
-			btnBrowse.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					JFileChooser fc = new JFileChooser();
-					fc.setFileFilter(new OpenFileFilter("jar", "Java Jar File"));
-					fc.setAcceptAllFileFilterUsed(false);
-					int returnVal = fc.showOpenDialog(MasterWindow.this);
-		
-			        if (returnVal == JFileChooser.APPROVE_OPTION) {
-			            File file = fc.getSelectedFile();
-			            comboBox.getEditor().setItem(file.getAbsolutePath());
-			        }
-				}
-			});
-			
-			JPanel tabServerOptions = new JPanel();
+
+				settings.setLayout(new BorderLayout(0, 0));
+				settings.add(comboBox, BorderLayout.CENTER);
+				settings.add(btnBrowse, BorderLayout.EAST);
+				settings.add(settings_2, BorderLayout.SOUTH);
+				buttons.add(splitPane, BorderLayout.SOUTH);
+				buttons.setLayout(new BorderLayout(0, 0));
+				buttons.add(stop, BorderLayout.NORTH);
+					btnBrowse.addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							JFileChooser fc = new JFileChooser();
+							fc.setFileFilter(new OpenFileFilter("jar", "Java Jar File"));
+							fc.setAcceptAllFileFilterUsed(false);
+							int returnVal = fc.showOpenDialog(MasterWindow.this);
+				
+					        if (returnVal == JFileChooser.APPROVE_OPTION) {
+					            File file = fc.getSelectedFile();
+					            comboBox.getEditor().setItem(file.getAbsolutePath());
+					        }
+						}
+					});
+					start.setPreferredSize(new Dimension(100, 23));
+					splitPane.setLeftComponent(start);
+					splitPane.setRightComponent(reboot);
+					comboBox.setEditable(true);
+					settings_2.setLayout(new BorderLayout(0, 0));
+					settings_2.add(ram, BorderLayout.EAST);
+					settings_2.add(ramSlider, BorderLayout.CENTER);
+					settings_2.add(settings_3, BorderLayout.SOUTH);
+						ram.setBackground(new Color(255, 255, 255));
+						ram.setEditable(false);
+						ram.setText("1.00G");
+						ram.setColumns(10);
+						ramSlider.setBackground(new Color(255, 255, 255));
+						ramSlider.setMinorTickSpacing(25);
+						ramSlider.setMinimum(100);
+						ramSlider.setMaximum(100);
+						ramSlider.setMajorTickSpacing(100);
+						ramSlider.setPaintTicks(true);
+						ramSlider.setSnapToTicks(true);
+						ramSlider.setValue(100);
+						ramSlider.addChangeListener(new ChangeListener() {
+							@Override
+							public void stateChanged(ChangeEvent e) {
+								 JSlider source = (JSlider)e.getSource();
+								 double value = (double) source.getValue()/100;
+								 ram.setText(value + "G");
+							}
+						});
+						settings_3.setLayout(new BorderLayout(0, 0));
+						settings_3.add(chckbxWhitelist, BorderLayout.NORTH);
+							chckbxWhitelist.setBackground(new Color(255, 255, 255));
 			tabServerOptions.setBackground(new Color(255, 255, 255));
-			tabbedPane.addTab("Server Options", null, tabServerOptions, null);
 			tabServerOptions.setLayout(new BorderLayout(0, 0));
-			
-			JEditorPane properties = new JEditorPane();
-			tabServerOptions.add(properties, BorderLayout.CENTER);
-			
-			JPanel lists = new JPanel();
-			tabServerOptions.add(lists, BorderLayout.SOUTH);
-			lists.setLayout(new BorderLayout(0, 0));
-			
-			JPanel listsLeft = new JPanel();
-			lists.add(listsLeft, BorderLayout.WEST);
-			
-			JPanel whitelistedPanel = new JPanel();
-			listsLeft.add(whitelistedPanel);
-			whitelistedPanel.setLayout(new BorderLayout(0, 0));
-			
-			txtWhitelist = new JTextField();
-			txtWhitelist.setText("Whitelist");
-			txtWhitelist.setEditable(false);
-			whitelistedPanel.add(txtWhitelist, BorderLayout.NORTH);
-			
-			JPanel opPanel = new JPanel();
-			listsLeft.add(opPanel);
-			opPanel.setLayout(new BorderLayout(0, 0));
-			
-			JPanel listsRight = new JPanel();
-			lists.add(listsRight, BorderLayout.EAST);
-			
-			JPanel bannedPanel = new JPanel();
-			listsRight.add(bannedPanel);
-			bannedPanel.setLayout(new BorderLayout(0, 0));
-			
-			JPanel bannedIPPanel = new JPanel();
-			listsRight.add(bannedIPPanel);
-			bannedIPPanel.setLayout(new BorderLayout(0, 0));
-			
-			JPanel tabOptions = new JPanel();
+			tabServerOptions.add(scrollpane_3, BorderLayout.CENTER);
 			tabOptions.setBackground(new Color(255, 255, 255));
 			tabOptions.setToolTipText("Server And GUI Options");
-			tabbedPane.addTab("Settings", null, tabOptions, null);
+			tabOptions.setLayout(new BorderLayout(0, 0));
+			tabOptions.add(computerInfo, BorderLayout.NORTH);
+			tabOptions.add(notif, BorderLayout.CENTER);
+			tabOptions.add(footer, BorderLayout.SOUTH);
+				footer.setLayout(new BorderLayout(0, 0));
+				footer.add(footerLbl, BorderLayout.NORTH);
+				notif.setLayout(new BorderLayout(0, 0));
+				notif.add(notifTop, BorderLayout.NORTH);
+				computerInfo.setLayout(new BorderLayout(0, 0));
+				computerInfo.add(cpuInfo, BorderLayout.NORTH);
+				computerInfo.add(ramInfo, BorderLayout.CENTER);
+				computerInfo.add(osInfo, BorderLayout.SOUTH);
+					footerLbl.setHorizontalAlignment(SwingConstants.CENTER);
+					notifTop.setLayout(new BorderLayout(0, 0));
+					notifTop.add(notificationsEnabled, BorderLayout.NORTH);
+					notifTop.add(notifType, BorderLayout.CENTER);
+					cpuInfo.setEditable(false);
+					cpuInfo.setText("CPU: ");
+					cpuInfo.setColumns(10);
+					ramInfo.setEditable(false);
+					ramInfo.setText("RAM: ");
+					ramInfo.setColumns(10);
+					osInfo.setEditable(false);
+					osInfo.setText("OS: ");
+					osInfo.setColumns(10);
+					notifType.setBackground(SystemColor.menu);
+					notifType.add("Tray Popup");
+					notifType.add("Sound");
+			
+			//Windows Settings
+			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			setIconImage(Toolkit.getDefaultToolkit().getImage(MasterWindow.class.getResource("/net/dusterthefirst/res/icon.png")));
+			setTitle("Simple Spigot");
+			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			setBounds(100, 100, 450, 300);
+			setContentPane(contentPane);
+			setJMenuBar(menuBar);
+			
 	}
 
 }
@@ -485,5 +432,5 @@ class StayOpenCheckBoxMenuItemUI extends BasicCheckBoxMenuItemUI {
 	   public static ComponentUI createUI(JComponent c) {
 	      return new StayOpenCheckBoxMenuItemUI();
 	   }
-	}
 
+}
