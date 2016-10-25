@@ -8,6 +8,7 @@ import java.awt.Dimension;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
 
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -34,11 +35,12 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
 
 import net.dusterthefirst.simplespigot.Plugin.BIT;
-import net.ftb.util.OSUtils.OS;
+import net.dusterthefirst.simplespigot.util.MasterWindowListener;
 
 @SuppressWarnings("serial")
 public class MasterWindow extends JFrame {
@@ -54,11 +56,11 @@ public class MasterWindow extends JFrame {
 	public JTextField txtUuid;
 	public JCheckBox chckbxWhitelisted;
 	public JEditorPane properties;
-	public JTextField cpuInfo;
-	public JTextField ramInfo;
-	public JTextField osInfo;
 	public JCheckBox notificationsEnabled;
 	public Choice notifType;
+	public JEditorPane spigot;
+	public JEditorPane bukkit;
+	public JEditorPane help;
 	
 	/**
 	 * Warns If Wrong Bit Version Of Java On Your Computer
@@ -98,12 +100,17 @@ public class MasterWindow extends JFrame {
 	}
 
 	/**
-	 * Create the frame.
-	 * @param cores 
-	 * @param oSmem 
-	 * @param os 
+	 * Warns The User About Closing The Window
+	 * @return If They Close
 	 */
-	public MasterWindow(OS os, long oSmem, int cores) {
+	public int warnClose(){
+		return JOptionPane.showConfirmDialog(this, "Would You Like To Stop The Server?", "Confirm Stopping Server", JOptionPane.YES_NO_CANCEL_OPTION);
+	}
+	
+	/**
+	 * Create the frame.
+	 */
+	public MasterWindow() {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
@@ -145,15 +152,28 @@ public class MasterWindow extends JFrame {
 		//Content Pane
 		contentPane = new JPanel();
 			JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+				JPanel tabInfo = new JPanel();
+					JPanel playersPane = new JPanel();
+						JLabel playersTitle = new JLabel("Players");
+						JList<?> simplePlayersList = new JList<Object>();
+					JPanel worldPane = new JPanel();
+						JLabel worldTitle = new JLabel("Worlds");
+						JList<?> simpleWorldsList = new JList<Object>();
+					JPanel pluginsPane = new JPanel();
+						JList<?> simplePluginsList = new JList<Object>();
+						JLabel pluginsTitle = new JLabel("Plugins");
 				JPanel tabCmdHeirarchy = new JPanel();
 					commandTree = new JTree();
 					JScrollPane scrollPane_1 = new JScrollPane(commandTree);
 				JPanel tabRngPlugins = new JPanel();
 					JSplitPane pluginz = new JSplitPane();
-						DefaultListModel<String> listModel = new DefaultListModel<String>();
+					DefaultListModel<String> listModel = new DefaultListModel<String>();
 						pluginList = new JList<String>(listModel);
-						pluginYML = new JEditorPane();
-						JScrollPane scrollpane_2 = new JScrollPane(pluginYML);
+						JPanel plugin = new JPanel();
+							pluginYML = new JEditorPane();
+							JScrollPane scrollPane = new JScrollPane(pluginYML);
+							JCheckBox chckbxNewCheckBox = new JCheckBox("Plugin Enabled");
+							JScrollPane scrollpane_2 = new JScrollPane();
 				JPanel tabPlayers = new JPanel();
 					JSplitPane playerz = new JSplitPane();
 						playerList = new JList<Object>();
@@ -165,29 +185,60 @@ public class MasterWindow extends JFrame {
 						JPanel playerOptions2 = new JPanel();
 							txtUuid = new JTextField();
 							chckbxWhitelisted = new JCheckBox("Whitelisted");
-					JPanel tabServerOptions = new JPanel();
+				JPanel tabServerFiles = new JPanel();
+					JTabbedPane tabbedPane_1 = new JTabbedPane(JTabbedPane.TOP);
+					JButton btnNewButton = new JButton("Save Files");
 						properties = new JEditorPane();
+						spigot = new JEditorPane();
+						bukkit = new JEditorPane();
+						help = new JEditorPane();
+						JScrollPane scrollpane_4 = new JScrollPane(spigot);
+						JScrollPane scrollpane_5 = new JScrollPane(bukkit);
+						JScrollPane scrollpane_6 = new JScrollPane(help);
 						JScrollPane scrollpane_3 = new JScrollPane(properties);
-					JPanel tabOptions = new JPanel();
-						JPanel computerInfo = new JPanel();
-							cpuInfo = new JTextField();
-							ramInfo = new JTextField();
-							osInfo = new JTextField();
-						JPanel notif = new JPanel();
-							JPanel notifTop = new JPanel();
-								notificationsEnabled = new JCheckBox("Notifications");
-								notifType = new Choice();
-						JPanel footer = new JPanel();
-							JLabel footerLbl = new JLabel("Dusterthefirst 2016");
+				JPanel tabOptions = new JPanel();
+					JPanel notif = new JPanel();
+						JPanel notifTop = new JPanel();
+							notificationsEnabled = new JCheckBox("Notifications");
+							notifType = new Choice();
+					JPanel footer = new JPanel();
+						JLabel footerLbl = new JLabel("Dusterthefirst 2016");
+		
+		
+		
+		//Adds Tabs
+		tabbedPane.addTab("Info", null, tabInfo, null);
 		tabbedPane.addTab("Commands", null, tabCmdHeirarchy, "Command Heirarchy");
 		tabbedPane.addTab("Plugins", null, tabRngPlugins, "Running Plugins");
 		tabbedPane.addTab("Players", null, tabPlayers, "Online And Offline Players");
-		tabbedPane.addTab("Server Options", null, tabServerOptions, "Server Properties");
+		tabbedPane.addTab("Server Files", null, tabServerFiles, "Server Config Files");
 		tabbedPane.addTab("Settings", null, tabOptions, "GUI Settings");
 		
 		//Settings
 		contentPane.setLayout(new BorderLayout(0, 0));
 		contentPane.add(tabbedPane, BorderLayout.CENTER);
+			tabInfo.setLayout(new BoxLayout(tabInfo, BoxLayout.X_AXIS));
+			tabInfo.add(playersPane);
+			tabInfo.add(worldPane);
+			tabInfo.add(pluginsPane);
+				playersPane.setBorder(new LineBorder(new Color(204, 204, 255), 2));
+				playersPane.setLayout(new BorderLayout(0, 0));
+				playersPane.add(playersTitle, BorderLayout.NORTH);
+				playersPane.add(simplePlayersList, BorderLayout.CENTER);
+					playersTitle.setHorizontalAlignment(SwingConstants.CENTER);
+					simplePlayersList.setBackground(SystemColor.menu);
+				worldPane.setBorder(new LineBorder(new Color(204, 204, 255), 2));
+				worldPane.setLayout(new BorderLayout(0, 0));
+				worldPane.add(worldTitle, BorderLayout.NORTH);
+				worldPane.add(simpleWorldsList, BorderLayout.CENTER);
+					worldTitle.setHorizontalAlignment(SwingConstants.CENTER);
+					simpleWorldsList.setBackground(SystemColor.menu);
+				pluginsPane.setBorder(new LineBorder(new Color(204, 204, 255), 2));
+				pluginsPane.setLayout(new BorderLayout(0, 0));
+				pluginsPane.add(pluginsTitle, BorderLayout.NORTH);
+				pluginsPane.add(simplePluginsList, BorderLayout.CENTER);
+					pluginsTitle.setHorizontalAlignment(SwingConstants.CENTER);
+					simplePluginsList.setBackground(SystemColor.menu);
 			tabCmdHeirarchy.setBackground(new Color(255, 255, 255));
 			tabCmdHeirarchy.setLayout(new BorderLayout(0, 0));
 			tabCmdHeirarchy.add(scrollPane_1, BorderLayout.CENTER);
@@ -199,8 +250,12 @@ public class MasterWindow extends JFrame {
 			tabRngPlugins.setLayout(new BorderLayout(0, 0));
 			tabRngPlugins.add(pluginz, BorderLayout.CENTER);
 				pluginz.setLeftComponent(pluginList);
-				pluginz.setRightComponent(scrollpane_2);
+				pluginz.setRightComponent(plugin);
 					pluginList.setMinimumSize(new Dimension(1, 1));
+					plugin.setLayout(new BorderLayout(0, 0));
+					chckbxNewCheckBox.setSelected(true);
+					plugin.add(chckbxNewCheckBox, BorderLayout.NORTH);
+					plugin.add(scrollPane, BorderLayout.CENTER);
 					pluginYML.setMinimumSize(new Dimension(1, 1));
 					pluginYML.setText("Select A Plugin");
 			tabPlayers.setBackground(new Color(255, 255, 255));
@@ -226,49 +281,45 @@ public class MasterWindow extends JFrame {
 								txtUuid.setEditable(false);
 								txtUuid.setText("UUID:");
 								txtUuid.setColumns(10);
-			tabServerOptions.setBackground(new Color(255, 255, 255));
-			tabServerOptions.setLayout(new BorderLayout(0, 0));
-			tabServerOptions.add(scrollpane_3, BorderLayout.CENTER);
-			tabOptions.setBackground(new Color(255, 255, 255));
+			tabServerFiles.setBackground(new Color(255, 255, 255));
+			tabServerFiles.setLayout(new BorderLayout(0, 0));
+				tabServerFiles.add(btnNewButton, BorderLayout.NORTH);
+				tabServerFiles.add(tabbedPane_1, BorderLayout.CENTER);
+					properties.setText("Your Server Doesnt Have One Of These");
+					spigot.setText("Your Server Doesnt Have One Of These");
+					bukkit.setText("Your Server Doesnt Have One Of These");
+					help.setEditable(false);
+					help.setText("Your Server Doesnt Have One Of These");
+					tabbedPane_1.addTab("server.properties", null, scrollpane_3, null);
+					tabbedPane_1.addTab("spigot.yml", null, scrollpane_4, null);
+					tabbedPane_1.addTab("bukkit.yml", null, scrollpane_5, null);
+					tabbedPane_1.addTab("help.yml", null, scrollpane_6, null);
+			tabOptions.setBackground(SystemColor.menu);
 			tabOptions.setToolTipText("Server And GUI Options");
 			tabOptions.setLayout(new BorderLayout(0, 0));
-			tabOptions.add(computerInfo, BorderLayout.NORTH);
-			tabOptions.add(notif, BorderLayout.CENTER);
+			tabOptions.add(notif, BorderLayout.NORTH);
 			tabOptions.add(footer, BorderLayout.SOUTH);
 				footer.setLayout(new BorderLayout(0, 0));
 				footer.add(footerLbl, BorderLayout.NORTH);
 				notif.setLayout(new BorderLayout(0, 0));
 				notif.add(notifTop, BorderLayout.NORTH);
-				computerInfo.setLayout(new BorderLayout(0, 0));
-				computerInfo.add(cpuInfo, BorderLayout.NORTH);
-				computerInfo.add(ramInfo, BorderLayout.CENTER);
-				computerInfo.add(osInfo, BorderLayout.SOUTH);
 					footerLbl.setHorizontalAlignment(SwingConstants.CENTER);
 					notifTop.setLayout(new BorderLayout(0, 0));
 					notifTop.add(notificationsEnabled, BorderLayout.NORTH);
 					notifTop.add(notifType, BorderLayout.CENTER);
-					cpuInfo.setEditable(false);
-					cpuInfo.setText("CPU: ");
-					cpuInfo.setColumns(10);
-					ramInfo.setEditable(false);
-					ramInfo.setText("RAM: ");
-					ramInfo.setColumns(10);
-					osInfo.setEditable(false);
-					osInfo.setText("OS: ");
-					osInfo.setColumns(10);
 					notifType.setBackground(SystemColor.menu);
 					notifType.add("Tray Popup");
 					notifType.add("Sound");
 			
 			//Windows Settings
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-			setIconImage(Toolkit.getDefaultToolkit().getImage(MasterWindow.class.getResource("/net/dusterthefirst/res/icon.png")));
 			setTitle("Simple Spigot");
-			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 			setBounds(100, 100, 450, 300);
 			setContentPane(contentPane);
 			setJMenuBar(menuBar);
-			
+			setIconImage(Toolkit.getDefaultToolkit().getImage(MasterWindow.class.getResource("/net/dusterthefirst/res/icon.png")));
+			addWindowListener(new MasterWindowListener());
 	}
 
 }
