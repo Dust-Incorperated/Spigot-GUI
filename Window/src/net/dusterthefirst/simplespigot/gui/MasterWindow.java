@@ -39,7 +39,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
 
-import net.dusterthefirst.simplespigot.Plugin.BIT;
+import net.dusterthefirst.simplespigot.PluginClass.BIT;
 import net.dusterthefirst.simplespigot.util.MasterWindowListener;
 
 @SuppressWarnings("serial")
@@ -49,7 +49,7 @@ public class MasterWindow extends JFrame {
 	public JTree commandTree;
 	public JList<String> pluginList;
 	public JEditorPane pluginYML;
-	public JList<Object> playerList;
+	public JList<String> playerList;
 	public JButton btnKick;
 	public JCheckBox chckbxBanned;
 	public JCheckBox chckbxOp;
@@ -61,6 +61,9 @@ public class MasterWindow extends JFrame {
 	public JEditorPane spigot;
 	public JEditorPane bukkit;
 	public JEditorPane help;
+	public JList<String> simplePluginsList;
+	public JList<String> simpleWorldsList;
+	public JList<String> simplePlayersList;
 	
 	/**
 	 * Warns If Wrong Bit Version Of Java On Your Computer
@@ -155,12 +158,12 @@ public class MasterWindow extends JFrame {
 				JPanel tabInfo = new JPanel();
 					JPanel playersPane = new JPanel();
 						JLabel playersTitle = new JLabel("Players");
-						JList<?> simplePlayersList = new JList<Object>();
+						simplePlayersList = new JList<String>();
 					JPanel worldPane = new JPanel();
 						JLabel worldTitle = new JLabel("Worlds");
-						JList<?> simpleWorldsList = new JList<Object>();
+						simpleWorldsList = new JList<String>();
 					JPanel pluginsPane = new JPanel();
-						JList<?> simplePluginsList = new JList<Object>();
+						simplePluginsList = new JList<String>();
 						JLabel pluginsTitle = new JLabel("Plugins");
 				JPanel tabCmdHeirarchy = new JPanel();
 					commandTree = new JTree();
@@ -173,10 +176,9 @@ public class MasterWindow extends JFrame {
 							pluginYML = new JEditorPane();
 							JScrollPane scrollPane = new JScrollPane(pluginYML);
 							JCheckBox chckbxNewCheckBox = new JCheckBox("Plugin Enabled");
-							JScrollPane scrollpane_2 = new JScrollPane();
 				JPanel tabPlayers = new JPanel();
 					JSplitPane playerz = new JSplitPane();
-						playerList = new JList<Object>();
+						playerList = new JList<String>();
 						JPanel playerOptions = new JPanel();
 							btnKick = new JButton("Kick");
 						JPanel playerOptions1 = new JPanel();
@@ -200,6 +202,7 @@ public class MasterWindow extends JFrame {
 					JPanel notif = new JPanel();
 						JPanel notifTop = new JPanel();
 							notificationsEnabled = new JCheckBox("Notifications");
+							notificationsEnabled.setSelected(true);
 							notifType = new Choice();
 					JPanel footer = new JPanel();
 						JLabel footerLbl = new JLabel("Dusterthefirst 2016");
@@ -308,8 +311,10 @@ public class MasterWindow extends JFrame {
 					notifTop.add(notificationsEnabled, BorderLayout.NORTH);
 					notifTop.add(notifType, BorderLayout.CENTER);
 					notifType.setBackground(SystemColor.menu);
+					notifType.add("");
 					notifType.add("Tray Popup");
 					notifType.add("Sound");
+					notifType.add("Tray And Sound");
 			
 			//Windows Settings
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));

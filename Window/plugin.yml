@@ -1,4 +1,4 @@
-main: net.dusterthefirst.simplespigot.Plugin
+main: net.dusterthefirst.simplespigot.PluginClass
 name: SimpleSpigot
 version: 0.0
 author: DusterTheFirst
