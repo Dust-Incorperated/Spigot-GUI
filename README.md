@@ -2,7 +2,7 @@
 Simple GUI for spigot servers
 
 # DISCLAIMER
-## This Is Not Ment For Use On Remote Servers Or Servers That You Do Not Host Yourself. 
+## __DO NOT__ Use On Remote Servers Or Servers That You Do Not Host Yourself. 
 
 # How To Use
 DO NOT USE YET. 
