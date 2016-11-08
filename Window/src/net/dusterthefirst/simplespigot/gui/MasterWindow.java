@@ -332,7 +332,6 @@ public class MasterWindow extends JFrame {
 					notifTop.add(notificationsEnabled, BorderLayout.NORTH);
 					notifTop.add(notifType, BorderLayout.CENTER);
 					notifType.setBackground(SystemColor.menu);
-					notifType.add("");
 					notifType.add("Tray Popup");
 					notifType.add("Sound");
 					notifType.add("Tray And Sound");

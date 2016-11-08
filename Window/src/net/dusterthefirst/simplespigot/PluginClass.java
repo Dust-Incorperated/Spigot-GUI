@@ -3,6 +3,8 @@ package net.dusterthefirst.simplespigot;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -14,22 +16,28 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JEditorPane;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Server;
 import org.bukkit.World;
+import org.bukkit.command.Command;
+import org.bukkit.command.PluginCommandYamlParser;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.json.simple.JSONObject;
 
 import net.dusterthefirst.simplespigot.gui.MasterWindow;
 import net.dusterthefirst.simplespigot.util.NotifManager;
+import net.dusterthefirst.simplespigot.util.NotifManager.NotifType;
 import net.ftb.util.OSUtils;
 
 public class PluginClass extends JavaPlugin{
@@ -42,26 +50,29 @@ public class PluginClass extends JavaPlugin{
 	
 	public static MasterWindow window;
 	static PrintStream out, err;
-	private static Server server;
 	private static File serverProperties, spigotyml, bukkityml, helpyml;
 	private static JEditorPane JserverProperties, Jspigotyml, Jbukkityml, Jhelpyml;
-	private static boolean traysuported;
-	
-	public static void main(String[] args) {
-		createWindow();
-		traysuported = NotifManager.createTrayIcon();
-	}
-
-	@Override
-	public void onLoad() {
-		createWindow();
-		server = getServer();
-	}
-	
-	@Override
-	public void onEnable() {
-		getServer().getPluginManager().registerEvents(LISTENER, this);
-		getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable(){
+	private static boolean notifEnabled = true;
+	private static NotifType notifType = NotifType.DISABLED;
+	//TODO do....
+	private static File settingsF, commandsF, aboutF;
+	private static YamlConfiguration windowSaveFile = new YamlConfiguration();
+	private static JSONObject commandsJson, commandmap;
+	private static Properties settings;
+	public Runnable 
+		loadSettings = new Runnable() {
+			@Override
+			public void run() {
+				
+			}
+		},
+		saveSettings = new Runnable() {
+			@Override
+			public void run() {
+				
+			}
+		},
+		runOnWorldLoad =  new Runnable(){
 	        @Override
 	        public void run(){
 	        	setFilesToFiles();
@@ -70,8 +81,50 @@ public class PluginClass extends JavaPlugin{
 	    		updateSimplePluginsList();
 	    		updatePluginsList();
 	    		updatePlayerList();
+	    		NotifManager.reloadTrayIcon();
+	    		getCommands();
 	        }
-	    });
+	    };
+
+	private Runnable updateNotif;
+
+	@Override
+	public void onLoad() {
+		createWindow();
+		loadSettings.run();
+	}
+	
+
+	@Override
+	public void onEnable() {
+		getServer().getPluginManager().registerEvents(LISTENER, this);
+		getServer().getScheduler().scheduleSyncDelayedTask(this, runOnWorldLoad);
+		
+		updateNotif = new Runnable() {
+			public void run() {
+				if(notifEnabled){
+					switch (window.notifType.getSelectedItem()) {
+					case "Tray Popup":
+						notifType = NotifType.TRAY;
+						break;
+					case "Sound":
+						notifType = NotifType.SOUND;
+						break;
+					case "Tray And Sound":
+						notifType = NotifType.TRAYSOUND;
+						break;
+					default:
+						notifType = NotifType.DISABLED;
+						break;
+					}
+				}else{
+					notifType = NotifType.DISABLED;
+				}
+				EventListener.notif = notifType;
+			}
+		};
+		updateNotif.run();
+		
 		window.btnSaveFiles.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -86,26 +139,42 @@ public class PluginClass extends JavaPlugin{
 		window.mntmReloadServer.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				server.reload();
+				getServer().reload();
 			}
 		});
 		window.mntmBugz.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				
 			}
 		});
+		window.notificationsEnabled.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				notifEnabled = window.notificationsEnabled.isSelected();
+				window.notifType.setEnabled(notifEnabled);
+				updateNotif.run();
+			}
+		});
+		window.notifType.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				updateNotif.run();
+			}
+		});
 		
-		window.setTitle(window.getTitle() + " - Spigot/Bukkit V" + server.getBukkitVersion().split("-", 2)[0]);
-		setMOTD(server.getMotd());
-		traysuported = NotifManager.createTrayIcon();
+		window.setTitle(window.getTitle() + " - Spigot/Bukkit V" + getServer().getBukkitVersion().split("-", 2)[0]);
+		setMOTD(getServer().getMotd());
+		NotifManager.createTrayIcon();
+		
+		NotifManager.alert(notifType, "Window Created On Host");
 	}
 	
 	@Override
 	public void onDisable() {
 		window.dispose();
-		traysuported = NotifManager.createTrayIcon();
+		NotifManager.removeTrayIcon();
+		saveSettings.run();
 	}
 	
 	private static void setMOTD(String text){
@@ -139,6 +208,18 @@ public class PluginClass extends JavaPlugin{
 		}
 	}
 	
+	void getCommands() {
+		//TODO Finish
+		Plugin[] plugins = getServer().getPluginManager().getPlugins();
+		HashMap<Plugin, List<Command>> pluginCommands = new HashMap<>();
+		for(Plugin p : plugins){
+			List<Command> cmdList = PluginCommandYamlParser.parse(p);
+			getServer().dispatchCommand(getServer().getConsoleSender(), "help " + p.getName().toUpperCase());
+			pluginCommands.put(p, cmdList);
+		}
+		System.out.println(pluginCommands);
+	}
+	
 	static BIT getBitness(){
 		boolean 
 		VMbit = OSUtils.is64BitVM(), 
@@ -156,7 +237,7 @@ public class PluginClass extends JavaPlugin{
 		return wrongBit;
 	}
 
-	String readFile(File f){
+	static String readFile(File f){
         // This will reference one line at a time
         String line = "", output = "";
 
@@ -199,7 +280,7 @@ public class PluginClass extends JavaPlugin{
 	
 	public static void updateSimplePlayerList(){
 		DefaultListModel<String> newmodel = new DefaultListModel<String>();
-		Collection<? extends Player> players = server.getOnlinePlayers();
+		Collection<? extends Player> players = Bukkit.getServer().getOnlinePlayers();
 		for(Player player : players){
 			newmodel.addElement(player.getDisplayName());
 		}
@@ -208,42 +289,42 @@ public class PluginClass extends JavaPlugin{
 	
 	public static void updatePlayerList(){
 		DefaultListModel<String> newmodel = new DefaultListModel<String>();
-		Collection<? extends Player> players = server.getOnlinePlayers();
+		Collection<? extends Player> players = Bukkit.getServer().getOnlinePlayers();
 		for(Player player : players){
 			newmodel.addElement(player.getDisplayName());
 		}
 		window.playerList.setModel(newmodel);
 	}
 	
-	private void updateSimpleWorldsList() {
+	private static void updateSimpleWorldsList() {
 		DefaultListModel<String> newmodel = new DefaultListModel<String>();
-		Collection<World> worlds = server.getWorlds();
+		Collection<World> worlds = Bukkit.getServer().getWorlds();
 		for(World world : worlds){
 			newmodel.addElement(world.getName());
 		}
 		window.simpleWorldsList.setModel(newmodel);
 	}
 
-	private void updateSimplePluginsList() {
+	private static void updateSimplePluginsList() {
 		DefaultListModel<String> newmodel = new DefaultListModel<String>();
-		Plugin[] plugins = server.getPluginManager().getPlugins();
+		Plugin[] plugins = Bukkit.getServer().getPluginManager().getPlugins();
 		for(Plugin plugin : plugins){
 			newmodel.addElement(plugin.getName());
 		}
 		window.simplePluginsList.setModel(newmodel);
 	}
 
-	private void updatePluginsList(){
+	private static void updatePluginsList(){
 		DefaultListModel<String> newmodel = new DefaultListModel<String>();
-		Plugin[] plugins = server.getPluginManager().getPlugins();
+		Plugin[] plugins = Bukkit.getServer().getPluginManager().getPlugins();
 		for(Plugin plugin : plugins){
-			if(!plugin.getName().equalsIgnoreCase(this.getName()))
+			if(!plugin.getName().equalsIgnoreCase(getPlugin().getName()))
 				newmodel.addElement(plugin.getName());
 		}
 		window.pluginList.setModel(newmodel);
 	}
 	
- 	private void updateIcon() {
+ 	private static void updateIcon() {
 		if(new File("server-icon.png").exists()){
 			window.setIconImage(Toolkit.getDefaultToolkit().getImage("server-icon.png"));
 		}else{
@@ -252,7 +333,7 @@ public class PluginClass extends JavaPlugin{
 		}
 	}
 
-	private void setFilesToFiles() {
+	private static void setFilesToFiles() {
 		JserverProperties = window.properties;
 		Jspigotyml = window.spigot;
 		Jbukkityml = window.bukkit;

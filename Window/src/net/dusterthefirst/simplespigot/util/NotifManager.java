@@ -4,8 +4,8 @@ import java.awt.AWTException;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
-import java.io.File;
-import java.io.FileInputStream;
+
+import org.bukkit.ChatColor;
 
 import net.dusterthefirst.simplespigot.PluginClass;
 
@@ -33,9 +33,12 @@ public class NotifManager {
 	            System.out.println("TrayIcon could not be added.");
 	            return false;
 	        }
-	        alert(NotifType.TRAYSOUND, "Your Mother");
 		}
 		return traySupported();
+	}
+	
+	public static void reloadTrayIcon(){
+		trayIcon.setImage(PluginClass.window.getIconImage());
 	}
 	
 	public static void removeTrayIcon(){
@@ -43,6 +46,7 @@ public class NotifManager {
 	}
 	
 	public static void alert(NotifType type, String message){
+		message = message.replaceAll("(\u00A7|\u00BA).", "");
 		switch (type) {
 		case SOUND:
 			Toolkit.getDefaultToolkit().beep();
@@ -57,11 +61,5 @@ public class NotifManager {
 		case DISABLED:
 			break;
 		}
-		
 	}
-	
-	public static void main(String[] args) {
-		 Toolkit.getDefaultToolkit().beep();
-	}
-	
 }
