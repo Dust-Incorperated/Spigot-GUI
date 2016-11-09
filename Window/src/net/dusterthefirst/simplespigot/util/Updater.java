@@ -50,7 +50,7 @@ public class Updater {
 		String newversion = null;
 		newversion = getNewVersion();
 		String oldVersion = PluginClass.getPlugin().getDescription().getVersion();
-		return newversion.equalsIgnoreCase(oldVersion);
+		return !newversion.equalsIgnoreCase(oldVersion);
 	}
 	
 	public static String getNewVersion(){
@@ -58,7 +58,8 @@ public class Updater {
 	}
 	
 	public static String[] getNewThings(){
-		return map.get("newThings").split(",");
+		return map.getOrDefault("newthings", "ERROR,GETTING,THINGS")
+				.split(",");
 	}
 	
 }

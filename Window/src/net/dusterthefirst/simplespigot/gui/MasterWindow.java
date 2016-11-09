@@ -3,12 +3,15 @@ package net.dusterthefirst.simplespigot.gui;
 import java.awt.BorderLayout;
 import java.awt.Choice;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
 
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -36,6 +39,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
 
+import net.dusterthefirst.simplespigot.PluginClass;
 import net.dusterthefirst.simplespigot.PluginClass.BIT;
 import net.dusterthefirst.simplespigot.util.MasterWindowListener;
 
@@ -69,10 +73,12 @@ public class MasterWindow extends JFrame {
 	public JLabel motd2;
 	public JMenuItem mntmBugz;
 	public JMenuItem mntmReloadServer;
+	protected static JPanel tabOptions;
 	
 	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	int width = (int) screenSize.getWidth();
 	int height = (int) screenSize.getHeight();
+	
 	
 
 	/**
@@ -203,7 +209,7 @@ public class MasterWindow extends JFrame {
 						JScrollPane scrollpane_5 = new JScrollPane(bukkit);
 						JScrollPane scrollpane_6 = new JScrollPane(help);
 						JScrollPane scrollpane_3 = new JScrollPane(properties);
-				JPanel tabOptions = new JPanel();
+				tabOptions = new JPanel();
 					JPanel notif = new JPanel();
 						JPanel notifTop = new JPanel();
 							notificationsEnabled = new JCheckBox("Notifications");
@@ -290,6 +296,7 @@ public class MasterWindow extends JFrame {
 				playerz.setRightComponent(playerOptions);
 					playerList.setMinimumSize(new Dimension(1, 1));
 					playerList.setMaximumSize(new Dimension(10000, 10000));
+					playerList.setCellRenderer(new PlayerIconListRenderer());
 					playerOptions.setLayout(new BorderLayout(0, 0));
 					playerOptions.add(btnKick, BorderLayout.SOUTH);
 					playerOptions.add(playerOptions1, BorderLayout.NORTH);
@@ -375,4 +382,21 @@ class StayOpenCheckBoxMenuItemUI extends BasicCheckBoxMenuItemUI {
    protected void doClick(MenuSelectionManager msm){menuItem.doClick(0);}
    public static ComponentUI createUI(JComponent c){return new StayOpenCheckBoxMenuItemUI();}
 
+}
+
+@SuppressWarnings("serial")
+class PlayerIconListRenderer extends DefaultListCellRenderer {
+
+    Font font = new Font("helvitica", Font.PLAIN, 12);
+
+    @SuppressWarnings("rawtypes")
+	@Override
+    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+        JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+        label.setIcon(PluginClass.imageMap.get((String) value));
+        label.setHorizontalTextPosition(JLabel.RIGHT);
+        label.setFont(font);
+        label = new JLabel(PluginClass.imageMap.get((String) value).getIconHeight() + "", PluginClass.imageMap.get((String) value), JLabel.CENTER);
+        return label;
+    }
 }

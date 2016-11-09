@@ -10,8 +10,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,10 +21,15 @@ import java.util.List;
 import java.util.Properties;
 
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JEditorPane;
+import javax.swing.JFrame;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommandYamlParser;
@@ -38,9 +41,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONObject;
 
 import net.dusterthefirst.simplespigot.gui.MasterWindow;
-import net.dusterthefirst.simplespigot.gui.Update;
 import net.dusterthefirst.simplespigot.util.NotifManager;
 import net.dusterthefirst.simplespigot.util.NotifManager.NotifType;
+import net.dusterthefirst.simplespigot.util.Updater;
 import net.ftb.util.OSUtils;
 
 public class PluginClass extends JavaPlugin{
@@ -62,6 +65,7 @@ public class PluginClass extends JavaPlugin{
 	private static YamlConfiguration windowSaveFile = new YamlConfiguration();
 	private static JSONObject commandsJson, commandmap;
 	private static Properties settings;
+	public static HashMap<String, ImageIcon> imageMap;
 	public Runnable 
 		loadSettings = new Runnable() {
 			@Override
@@ -85,7 +89,6 @@ public class PluginClass extends JavaPlugin{
 	    		updatePluginsList();
 	    		updatePlayerList();
 	    		NotifManager.reloadTrayIcon();
-	    		getCommands();
 	        }
 	    };
 
@@ -166,6 +169,13 @@ public class PluginClass extends JavaPlugin{
 				updateNotif.run();
 			}
 		});
+		window.playerList.addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				String person = window.playerList.getSelectedValue();
+				
+			}
+		});
 		
 		window.setTitle(window.getTitle() + " - Spigot/Bukkit V" + getServer().getBukkitVersion().split("-", 2)[0]);
 		setMOTD(getServer().getMotd());
@@ -173,11 +183,7 @@ public class PluginClass extends JavaPlugin{
 		
 		NotifManager.alert(notifType, "Window Created On Host");
 		
-		try {
-			new Update("3velyn sux", Arrays.asList("hairs", "Thing", "less nate"), new URI("https://dusterthefirst.github.io"));
-		} catch (URISyntaxException e2) {
-			e2.printStackTrace();
-		}
+		Updater.update();
 	}
 	
 	@Override
@@ -251,7 +257,7 @@ public class PluginClass extends JavaPlugin{
 		return wrongBit;
 	}
 
-	static String readFile(File f){
+	public static String readFile(File f){
         // This will reference one line at a time
         String line = "", output = "";
 
@@ -302,12 +308,37 @@ public class PluginClass extends JavaPlugin{
 	}
 	
 	public static void updatePlayerList(){
-		DefaultListModel<String> newmodel = new DefaultListModel<String>();
-		Collection<? extends Player> players = Bukkit.getServer().getOnlinePlayers();
-		for(Player player : players){
-			newmodel.addElement(player.getDisplayName());
+		try{
+			DefaultListModel<String> newmodel = new DefaultListModel<String>();
+			imageMap = new HashMap<String, ImageIcon>();
+			OfflinePlayer[] offlineplayers = Bukkit.getServer().getOfflinePlayers();
+			for(OfflinePlayer player : offlineplayers){
+				ImageIcon icon;
+				if(player.isOnline()){
+					if(player.isOp()){
+						icon = new ImageIcon(Toolkit.getDefaultToolkit().getImage(MasterWindow.class.getResource("/net/dusterthefirst/res/OP.png")));
+						JFrame fram = new JFrame();
+						fram.setIconImage(icon.getImage());
+						fram.setVisible(true);
+					}else{
+						icon = new ImageIcon(Toolkit.getDefaultToolkit().getImage(PluginClass.class.getResource("/net/dusterthefirst/res/online.png")));
+					}
+				}else{
+					if(player.isBanned()){
+						icon = new ImageIcon(Toolkit.getDefaultToolkit().getImage(PluginClass.class.getResource("/net/dusterthefirst/res/offline-banned.png")));
+					}else if(player.isOp()){
+						icon = new ImageIcon(Toolkit.getDefaultToolkit().getImage(PluginClass.class.getResource("/net/dusterthefirst/res/offline-op.png")));
+					}else{
+						icon = new ImageIcon(Toolkit.getDefaultToolkit().getImage(PluginClass.class.getResource("/net/dusterthefirst/res/offline.png")));
+					}
+				}
+				imageMap.put(player.getName(), icon);
+				newmodel.addElement(player.getName());
+			}
+			window.playerList.setModel(newmodel);
+		}catch (Exception e) {
+			e.printStackTrace();
 		}
-		window.playerList.setModel(newmodel);
 	}
 	
 	private static void updateSimpleWorldsList() {
