@@ -8,42 +8,70 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.HashMap;
+
+import net.dusterthefirst.simplespigot.PluginClass;
+import net.dusterthefirst.simplespigot.gui.Update;
 
 public class Updater {
 	
+	static HashMap<String, String> map;
 	
+	public static void update(){
+		String content = null;
+		try {
+			content = LoadGithubContent.Load("https://raw.githubusercontent.com/DusterTheFirst/Spigot-GUI/master/Window/plugin.yml");
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		map = new HashMap<String, String>();
+		String[] lines = content.split("\n");
+		for (String line : lines) {
+			String[] parts = line.split(":", 2);
+			map.put(parts[0].trim().toLowerCase(), parts[1].trim());
+		}
+		
+		if(needsUpdate()){
+			try{
+			String newversion = null;
+			newversion = getNewVersion();
+				new Update(newversion, Arrays.asList(getNewThings()), new URI("https://github.com/DusterTheFirst/Spigot-GUI/releases"));
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public static boolean needsUpdate(){
+		String newversion = null;
+		newversion = getNewVersion();
+		String oldVersion = PluginClass.getPlugin().getDescription().getVersion();
+		return newversion.equalsIgnoreCase(oldVersion);
+	}
+	
+	public static String getNewVersion(){
+		return map.get("version");
+	}
+	
+	public static String[] getNewThings(){
+		return map.get("newThings").split(",");
+	}
 	
 }
 
 class LoadGithubContent {
 	 
-	public static void main(String[] args) throws Throwable {
-		String link = "https://raw.githubusercontent.com/Crunchify/All-in-One-Webmaster/master/all-in-one-webmaster-premium.php";
-		URL  Url = new URL(link);
-		HttpURLConnection  Http = (HttpURLConnection)  Url.openConnection();
-		Map<String, List<String>>  Header =  Http.getHeaderFields();
- 
-		// If URL is getting 301 and 302 redirection HTTP code then get new URL link.
-		// This below for loop is totally optional if you are sure that your URL is not getting redirected to anywhere
-		for (String header :  Header.get(null)) {
-			if (header.contains(" 302 ") || header.contains(" 301 ")) {
-				link = Header.get("Location").get(0);
-				Url = new URL(link);
-				Http = (HttpURLConnection)  Url.openConnection();
-				Header =  Http.getHeaderFields();
-			}
-		}
-		InputStream  Stream =  Http.getInputStream();
-		String  Response =  GetStringFromStream( Stream);
-		System.out.println( Response);
-	}
 	
-	public static void Load(){
-		
-		return;
+	public static String Load(String link) throws IOException{
+		URL Url = new URL(link);
+		HttpURLConnection Http = (HttpURLConnection)  Url.openConnection();
+		InputStream  Stream =  Http.getInputStream();
+		String  Response =  GetStringFromStream(Stream);
+		return Response;
 	}
  
         // ConvertStreamToString() Utility - we name it as  GetStringFromStream()
