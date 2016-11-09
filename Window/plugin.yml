@@ -2,4 +2,4 @@ main: net.dusterthefirst.simplespigot.PluginClass
 name: SimpleSpigot
 version: 0.0
 author: DusterTheFirst
-description: An Example plugin
+description: GUI For Spigot

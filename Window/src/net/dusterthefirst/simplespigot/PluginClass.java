@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,12 +38,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONObject;
 
 import net.dusterthefirst.simplespigot.gui.MasterWindow;
+import net.dusterthefirst.simplespigot.gui.Update;
 import net.dusterthefirst.simplespigot.util.NotifManager;
 import net.dusterthefirst.simplespigot.util.NotifManager.NotifType;
 import net.ftb.util.OSUtils;
 
 public class PluginClass extends JavaPlugin{
-	
+	//TODO TODO TODO TODO TODO DO THE PLUGIN YML
 	protected static final Listener LISTENER = new EventListener();
 	
 	public enum BIT{
@@ -97,6 +100,7 @@ public class PluginClass extends JavaPlugin{
 
 	@Override
 	public void onEnable() {
+		
 		getServer().getPluginManager().registerEvents(LISTENER, this);
 		getServer().getScheduler().scheduleSyncDelayedTask(this, runOnWorldLoad);
 		
@@ -168,6 +172,12 @@ public class PluginClass extends JavaPlugin{
 		NotifManager.createTrayIcon();
 		
 		NotifManager.alert(notifType, "Window Created On Host");
+		
+		try {
+			new Update("3velyn sux", Arrays.asList("hairs", "Thing", "less nate"), new URI("https://dusterthefirst.github.io"));
+		} catch (URISyntaxException e2) {
+			e2.printStackTrace();
+		}
 	}
 	
 	@Override
@@ -216,8 +226,12 @@ public class PluginClass extends JavaPlugin{
 			List<Command> cmdList = PluginCommandYamlParser.parse(p);
 			getServer().dispatchCommand(getServer().getConsoleSender(), "help " + p.getName().toUpperCase());
 			pluginCommands.put(p, cmdList);
+//			Collection<HelpTopic> cmdList2 = getServer().getHelpMap().getHelpTopics();
+//			for (HelpTopic helpTopic : cmdList2) {
+//				System.out.println(helpTopic.getName());
+//			}
 		}
-		System.out.println(pluginCommands);
+		//System.out.println(pluginCommands);
 	}
 	
 	static BIT getBitness(){
