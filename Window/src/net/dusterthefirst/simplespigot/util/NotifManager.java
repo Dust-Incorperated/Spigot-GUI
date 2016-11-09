@@ -5,8 +5,6 @@ import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
 
-import org.bukkit.ChatColor;
-
 import net.dusterthefirst.simplespigot.PluginClass;
 
 public class NotifManager {
